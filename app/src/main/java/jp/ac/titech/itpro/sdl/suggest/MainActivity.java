@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Xml;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> result;
     private final static String KEY_RESULT = "MainActivity.result";
 
+    private SuggestionsTask suggestionsTask = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +38,21 @@ public class MainActivity extends AppCompatActivity {
         inputText = (EditText) findViewById(R.id.input_text);
         ListView resultList = (ListView) findViewById(R.id.result_list);
         assert resultList != null;
+
+        inputText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                updateQuery(inputText.getText().toString().trim());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
 
         if (savedInstanceState != null)
             result = savedInstanceState.getStringArrayList(KEY_RESULT);
@@ -59,9 +78,26 @@ public class MainActivity extends AppCompatActivity {
         outState.putStringArrayList(KEY_RESULT, result);
     }
 
-    public void onClickSuggestButton(View view) {
-        String query = inputText.getText().toString().trim();
-        new SuggestionsTask().execute(query);
+    public void onClickClearButton(View view) {
+        inputText.setText("");
+        resultAdapter.clear();
+        cancelQuery();
+    }
+
+    private void cancelQuery() {
+        if (suggestionsTask != null &&
+                suggestionsTask.getStatus() != SuggestionsTask.Status.FINISHED &&
+                !suggestionsTask.isCancelled())
+            suggestionsTask.cancel(true);
+    }
+
+    private void updateQuery(String query) {
+        cancelQuery();
+        resultAdapter.clear();
+        if (query.length() > 0) {
+            suggestionsTask = new SuggestionsTask();
+            suggestionsTask.execute(query);
+        }
     }
 
     private class SuggestionsTask extends AsyncTask<String, Void, List<String>> {
@@ -106,9 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<String> result) {
-            resultAdapter.clear();
             resultAdapter.addAll(result);
-            inputText.selectAll();
         }
     }
 }

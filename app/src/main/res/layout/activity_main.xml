@@ -10,18 +10,18 @@
     tools:context="jp.ac.titech.itpro.sdl.suggest.MainActivity">
 
     <Button
-        android:id="@+id/suggest_button"
+        android:id="@+id/clear_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:onClick="onClickSuggestButton"
-        android:text="@string/suggest_button_label" />
+        android:onClick="onClickClearButton"
+        android:text="@string/clear_button_label" />
 
     <EditText
         android:id="@+id/input_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/suggest_button"
+        android:layout_toStartOf="@id/clear_button"
         android:hint="@string/input_text_hint" />
 
     <ListView
