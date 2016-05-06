@@ -2,8 +2,7 @@ package jp.ac.titech.itpro.sdl.suggest;
 
 import android.app.SearchManager;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Xml;
@@ -26,22 +25,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> resultAdapter;
     private ArrayList<String> result;
     private final static String KEY_RESULT = "MainActivity.result";
-
-    private Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        @SuppressWarnings("unchecked")
-        public boolean handleMessage(Message message) {
-            switch (message.what) {
-                case MSG_RESULT:
-                    resultAdapter.clear();
-                    resultAdapter.addAll((List<String>) message.obj);
-                    break;
-            }
-            return false;
-        }
-    });
-
-    private final static int MSG_RESULT = 1111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,17 +60,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickSuggestButton(View view) {
-        new SuggestionsThread().start();
+        String query = inputText.getText().toString().trim();
+        new SuggestionsTask().execute(query);
     }
 
-    private class SuggestionsThread extends Thread {
+    private class SuggestionsTask extends AsyncTask<String, Void, List<String>> {
         @Override
-        public void run() {
+        protected List<String> doInBackground(String... params) {
             List<String> result = new ArrayList<>();
             HttpURLConnection conn = null;
             String error = null;
             try {
-                String query = URLEncoder.encode(inputText.getText().toString().trim(), "UTF-8");
+                String query = URLEncoder.encode(params[0], "UTF-8");
                 URL url = new URL(getString(R.string.suggest_url, query));
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(10000);
@@ -117,7 +101,14 @@ public class MainActivity extends AppCompatActivity {
             }
             if (result.size() == 0)
                 result.add(getString(R.string.no_suggestions));
-            handler.sendMessage(handler.obtainMessage(MSG_RESULT, result));
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(List<String> result) {
+            resultAdapter.clear();
+            resultAdapter.addAll(result);
+            inputText.selectAll();
         }
     }
 }
