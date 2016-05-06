@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
                 case MSG_RESULT:
                     resultAdapter.clear();
                     resultAdapter.addAll((List<String>) message.obj);
+                    inputText.selectAll();
                     break;
             }
             return false;
