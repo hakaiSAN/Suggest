@@ -10,7 +10,7 @@
     tools:context="jp.ac.titech.itpro.sdl.suggest.MainActivity">
 
     <Button
-        android:id="@+id/clear_button"
+        android:id="@+id/suggest_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -21,7 +21,7 @@
         android:id="@+id/input_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/clear_button"
+        android:layout_toStartOf="@id/suggest_button"
         android:hint="@string/input_text_hint" />
 
     <ListView
